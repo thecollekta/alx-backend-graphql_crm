@@ -56,7 +56,9 @@ alx-backend-graphql_crm/
 │   ├── migrations/
 │   ├── cron_jobs/
 │   │   ├── clean_inactive_customers.sh    # Script for cleaning up inactive customers
-│   │   └── customer_cleanup_crontab.txt   # Crontab configuration for the cleanup job
+│   │   ├── customer_cleanup_crontab.txt   # Crontab configuration for the cleanup job
+│   │   ├── order_reminders_crontab.txt    # Crontab configuration for the reminders job
+│   │   └── send_order_reminders.py        # Script for sending order reminders
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
@@ -160,6 +162,30 @@ To manually run the cleanup:
 ```bash
 ./crm/cron_jobs/clean_inactive_customers.sh
 ```
+
+### Order Reminder Job
+
+The system includes an automated script to send reminders for recent orders. This script:
+
+- Runs daily at 8:00 AM (configurable)
+- Queries the GraphQL API for orders from the past 7 days
+- Logs order details to `/tmp/order_reminders_log.txt`
+- Can be extended to send email/SMS notifications
+
+To set up the cron job:
+
+```bash
+# Install required Python packages
+pip install gql requests
+
+# Make the script executable
+chmod +x crm/cron_jobs/send_order_reminders.py
+
+# Install the crontab (run as the user that will execute the job)
+crontab crm/cron_jobs/order_reminders_crontab.txt
+```
+
+---
 
 ## API Documentation
 
