@@ -30,6 +30,7 @@ a clean, modular architecture leveraging GraphQL's flexible querying capabilitie
 - **Data Validation**: Comprehensive input validation and error handling
 - **Filtering & Sorting**: Powerful query capabilities with filtering and ordering
 - **Pagination**: Efficient data loading with cursor-based pagination
+- **Automated Maintenance**: Scheduled cleanup of inactive customers (no orders in the past year)
 
 ## Technology Stack
 
@@ -53,6 +54,9 @@ alx-backend-graphql_crm/
 │   └── wsgi.py
 ├── crm/
 │   ├── migrations/
+│   ├── cron_jobs/
+│   │   ├── clean_inactive_customers.sh    # Script for cleaning up inactive customers
+│   │   └── customer_cleanup_crontab.txt   # Crontab configuration for the cleanup job
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
@@ -130,6 +134,32 @@ alx-backend-graphql_crm/
     ```
 
 ---
+
+## Automated Maintenance
+
+### Customer Cleanup Job
+
+The system includes an automated maintenance script to clean up inactive customers. This script:
+
+- Runs every Sunday at 2:00 AM (configurable)
+- Removes customers who haven't placed any orders in the past year
+- Logs all cleanup activities to `/tmp/customer_cleanup_log.txt`
+
+To set up the cron job:
+
+```bash
+# Make the script executable
+chmod +x crm/cron_jobs/clean_inactive_customers.sh
+
+# Install the crontab (run as the user that will execute the job)
+crontab crm/cron_jobs/customer_cleanup_crontab.txt
+```
+
+To manually run the cleanup:
+
+```bash
+./crm/cron_jobs/clean_inactive_customers.sh
+```
 
 ## API Documentation
 
