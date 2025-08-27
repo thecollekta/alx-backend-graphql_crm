@@ -10,9 +10,16 @@ import logging
 from datetime import datetime
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from django.conf import settings
 
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(message)s",
+    handlers=[
+        logging.FileHandler("/tmp/crm_heartbeat_log.txt"),
+        logging.StreamHandler(),
+    ],
+)
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +34,7 @@ def log_crm_heartbeat():
 
         # Log heartbeat
         message = f"{timestamp} CRM is alive"
-        print(message)  # This will be captured by the cron log
+        logger.info(message)
 
         # Verify GraphQL endpoint
         try:
