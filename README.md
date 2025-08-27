@@ -31,6 +31,7 @@ a clean, modular architecture leveraging GraphQL's flexible querying capabilitie
 - **Filtering & Sorting**: Powerful query capabilities with filtering and ordering
 - **Pagination**: Efficient data loading with cursor-based pagination
 - **Automated Maintenance**: Scheduled cleanup of inactive customers (no orders in the past year)
+- **Health Monitoring**: 5-minute heartbeat logging to verify system health
 
 ## Technology Stack
 
@@ -38,6 +39,7 @@ a clean, modular architecture leveraging GraphQL's flexible querying capabilitie
 - **GraphQL** : graphene-django
 - **Database** : PostgreSQL (recommended) / SQLite (development)
 - **Python** : 3.12
+- **Task Scheduling**: django-crontab
 
 ---
 
@@ -62,6 +64,7 @@ alx-backend-graphql_crm/
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
+│   ├── cron.py                            # Scheduled tasks including the heartbeat logger
 │   ├── models.py
 │   ├── schema.py              # CRM-specific GraphQL schema
 │   ├── tests.py
@@ -183,6 +186,34 @@ chmod +x crm/cron_jobs/send_order_reminders.py
 
 # Install the crontab (run as the user that will execute the job)
 crontab crm/cron_jobs/order_reminders_crontab.txt
+```
+
+### Heartbeat Logger
+
+The system includes a health monitoring feature that:
+
+- Runs every 5 minutes
+- Logs system status to `/tmp/crm_heartbeat_log.txt`
+- Verifies GraphQL endpoint responsiveness
+- Tracks system uptime and health
+
+To set up the heartbeat monitoring:
+
+```bash
+# Install the crontab entries
+python manage.py crontab add
+
+# Start the cron service (if not already running)
+sudo service cron start
+
+# Check active cron jobs
+python manage.py crontab show
+```
+
+To view the heartbeat log:
+
+```bash
+tail -f /tmp/crm_heartbeat_log.txt
 ```
 
 ---
