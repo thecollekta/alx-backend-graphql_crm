@@ -67,3 +67,56 @@ def log_crm_heartbeat():
     except Exception as e:
         logger.error(f"Error in heartbeat logging: {str(e)}")
         raise
+
+
+def update_low_stock():
+    """
+    Update low-stock products via GraphQL mutation.
+    Runs every 12 hours.
+    """
+    try:
+        from gql import gql, Client
+        from gql.transport.requests import RequestsHTTPTransport
+        import logging
+
+        # Configure logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(message)s",
+            handlers=[
+                logging.FileHandler("/tmp/low_stock_updates_log.txt"),
+                logging.StreamHandler(),
+            ],
+        )
+        logger = logging.getLogger(__name__)
+
+        # GraphQL mutation
+        mutation = gql("""
+            mutation {
+                updateLowStockProducts {
+                    success
+                    message
+                    updatedProducts
+                }
+            }
+        """)
+
+        # Execute the mutation
+        transport = RequestsHTTPTransport(url="http://localhost:8000/graphql/")
+        client = Client(transport=transport, fetch_schema_from_transport=True)
+        result = client.execute(mutation)
+
+        # Log the results
+        if result.get("updateLowStockProducts", {}).get("success"):
+            updated = result["updateLowStockProducts"]["updatedProducts"]
+            logger.info(
+                f"Successfully updated {len(updated)} products: {', '.join(updated)}"
+            )
+        else:
+            logger.error(
+                f"Failed to update products: {result.get('message', 'Unknown error')}"
+            )
+
+    except Exception as e:
+        logger.error(f"Error in update_low_stock: {str(e)}")
+        raise

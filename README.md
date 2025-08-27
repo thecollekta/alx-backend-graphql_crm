@@ -32,6 +32,7 @@ a clean, modular architecture leveraging GraphQL's flexible querying capabilitie
 - **Pagination**: Efficient data loading with cursor-based pagination
 - **Automated Maintenance**: Scheduled cleanup of inactive customers (no orders in the past year)
 - **Health Monitoring**: 5-minute heartbeat logging to verify system health
+- **Inventory Management**: Automatic restocking of low-inventory products (stock < 10)
 
 ## Technology Stack
 
@@ -215,6 +216,48 @@ To view the heartbeat log:
 ```bash
 tail -f /tmp/crm_heartbeat_log.txt
 ```
+
+### Low Stock Alerts & Auto-Restocking
+
+The system includes an automated inventory management feature that:
+
+- Runs every 12 hours
+- Identifies products with stock levels below 10
+- Automatically restocks these products by adding 10 units
+- Logs all restocking activities to `/tmp/low_stock_updates_log.txt`
+
+#### Example Log Entry
+
+```bash
+2025-08-27 10:00:00 - Successfully restocked 3 products:
+
+Widget A (New stock: 15)
+Widget B (New stock: 12)
+Widget C (New stock: 18)
+```
+
+#### GraphQL Mutation
+
+The system provides a `updateLowStockProducts` mutation that can be called manually if needed:
+
+```graphql
+mutation {
+  updateLowStockProducts {
+    success
+    message
+    updatedProducts
+  }
+}
+```
+
+### Log Files
+
+The system maintains several log files for monitoring and debugging:
+
+- `/tmp/crm_heartbeat_log.txt`: System health and uptime monitoring
+- `/tmp/low_stock_updates_log.txt`: Product restocking activities
+- `/tmp/order_reminders_log.txt`: Order reminder processing logs
+- `/tmp/customer_cleanup_log.txt`: Inactive customer cleanup logs
 
 ---
 
